@@ -4,22 +4,25 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 
 import java.util.concurrent.TimeUnit;
 
 import static org.testng.Assert.fail;
 
-public class LoginTest {
+public class TestBase {
     public static final String LOGIN_USER_FIELD = "user";       // element name for 'user name' field login page
     public static final String LOGIN_PASS_FIELD = "pass";       // element name for 'user pass' field for login page
-    public static final String GROUPS = "groups";               // element *link* for 'groups'
+    public static final String GROUPS = ".//a[@href='group.php']"; // element xpath *link* for 'groups'
     public static final String GROUPS_NEW = "new";              // element name for 'add new group'
     public static final String GROUP_NEW_NAME = "group_name";   // element name for 'new group name'
     public static final String GROUP_NEW_HEADER = "group_header"; // element name for 'new group header'
     public static final String GROUP_NEW_FOOTER = "group_footer"; // element name for 'new group footer'
     public static final String GROUP_NEW_SUBMIT = "submit";     // element name for 'new group submit'
-    private WebDriver driver;
+
+    public static final String GROUPS_SELECTED_FIRST = "(//span[@class='group']/input[@name='selected[]'])[1]";// element xpath for 'selected group', will always select first element
+    public static final String GROUPS_DELETE = "delete";        // element name for 'delete selected group'
+
+    protected WebDriver driver;
     private String baseUrl;
     private boolean acceptNextAlert = true;
     private StringBuffer verificationErrors = new StringBuffer();
@@ -40,23 +43,14 @@ public class LoginTest {
         driver.findElement(By.name(LOGIN_PASS_FIELD)).click();
         driver.findElement(By.name(LOGIN_PASS_FIELD)).clear();
         driver.findElement(By.name(LOGIN_PASS_FIELD)).sendKeys(password);
-        driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Password:'])[1]/following::input[2]")).click();
+        driver.findElement(By.xpath(".//input[@value='Login']")).click();
     }
 
-
-    @Test
-    public void testAddGroup() throws Exception {
-        navToGroupPage();
-        initAddGroup();
-        fillGroupForm(new GroupData("Group name", "header test", "footer test"));
-        submitAddGroup();
-    }
-
-    private void submitAddGroup() {
+    protected void submitAddGroup() {
         driver.findElement(By.name(GROUP_NEW_SUBMIT)).click();
     }
 
-    private void fillGroupForm(GroupData groupData) {
+    protected void fillGroupForm(GroupData groupData) {
         driver.findElement(By.name(GROUP_NEW_NAME)).click();
         driver.findElement(By.name(GROUP_NEW_NAME)).clear();
         driver.findElement(By.name(GROUP_NEW_NAME)).sendKeys(groupData.getName());
@@ -68,12 +62,20 @@ public class LoginTest {
         driver.findElement(By.name(GROUP_NEW_FOOTER)).sendKeys(groupData.getFooter());
     }
 
-    private void initAddGroup() {
+    protected void initAddGroup() {
         driver.findElement(By.name(GROUPS_NEW)).click();
     }
 
-    private void navToGroupPage() {
-        driver.findElement(By.linkText(GROUPS)).click();
+    protected void navToGroupPage() {
+        driver.findElement(By.xpath(GROUPS)).click();
+    }
+
+    protected void deleteSelectedGroup() {
+        driver.findElement(By.name(GROUPS_DELETE)).click();
+    }
+
+    protected void selectGroup() {
+        driver.findElement(By.xpath(GROUPS_SELECTED_FIRST)).click();
     }
 
     @AfterClass(alwaysRun = true)
@@ -117,4 +119,6 @@ public class LoginTest {
             acceptNextAlert = true;
         }
     }
+
+
 }
